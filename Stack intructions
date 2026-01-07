@@ -1,0 +1,39 @@
+The Stack is a memory that can hold 512 different values. Each IC10 has its own Stack, persistant on logic chips (push value to chip stack and they will remain on the chip, even with code removed)
+
+push r?                                              #adds the value r? and increments the sp by 1.
+pop r?                                               #loads the value in the stack memory at index sp-1 into register r? and decrements the sp by 1.
+peek r?                                              #loads the value in the stack memory at index sp-1 into register r?.
+get r? d? address(r?|num)                            #loads the value in the stack memory at index address on provided device into register r?.
+getd r? id(r?|num) address(r?|num)                   #loads the value in the stack memory at index address on provided device id into register r?.
+put d? address(r?|num) value(r?|num)                 #adds the value to the stack memory off the provided device at index address.
+putd id(r?|num) address(r?|num) value(r?|num)        #adds the value to the stack memory off the provided device id at index address.
+
+As mentioned previously, sp can be both written to and read from any time. When reading (peek or pop), sp must be between 1 and 512, inclusive. While writing (push), sp must be between 0 and 511, inclusive.
+
+
+Stack Traversing (Similar to how an array would be traversed in some other languages)
+
+#this will traverse indices {min value} through {max value}-1
+move sp {min value}
+loop:
+add sp sp 1
+peek r0
+
+#do something here with your stack values (loaded into r0)
+
+blt sp {max value} loop
+
+#continue on
+
+Alternatively, you can use the pop function's decrementing to make a more efficient loop:
+
+move sp {max value}
+add sp sp 1
+loop:
+pop r0
+
+#do something here with your stack values (loaded into r0)
+
+bgt sp {min value} loop
+
+#continue on
