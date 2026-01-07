@@ -1,4 +1,7 @@
 The Stack is a memory that can hold 512 different values. Each IC10 has its own Stack, persistant on logic chips (push value to chip stack and they will remain on the chip, even with code removed)
+sp can be both written to and read from any time. When reading (peek or pop), sp must be between 1 and 512, inclusive. While writing (push), sp must be between 0 and 511, inclusive.
+def: MSb/LSb most/less significant bit. LSb: rightmost, 1=odd, 0=even. MSb leftmost MSb=1:negative, MSb=0: postive)
+
 
 push r?                                              #adds the value r? and increments the sp by 1.
 pop r?                                               #loads the value in the stack memory at index sp-1 into register r? and decrements the sp by 1.
@@ -8,7 +11,29 @@ getd r? id(r?|num) address(r?|num)                   #loads the value in the sta
 put d? address(r?|num) value(r?|num)                 #adds the value to the stack memory off the provided device at index address.
 putd id(r?|num) address(r?|num) value(r?|num)        #adds the value to the stack memory off the provided device id at index address.
 
-As mentioned previously, sp can be both written to and read from any time. When reading (peek or pop), sp must be between 1 and 512, inclusive. While writing (push), sp must be between 0 and 511, inclusive.
+Bitwise operations
+All logic gates in MIPS have a bitwise behavior. The available gates are NOT, AND, OR, XOR and NOR (XNOR and NAND are missing).
+Stationeers each register uses 64 bits for integer values (a number without decimals), where the 64th bit is the sign-bit (0 for positive and 1 for negative, MSb/ most significant bit). Zero is positive.
+Negative numbers also behave according to Two's complement. Ex: 6->0110, flip all ->1001, add 1 ignoring overflow -> -6 (1=0[...]01, 0= 0[...]00,-1=1[...]10+1=1[...]11)
+MIPS have binary notation that is activated by placing a % in front of the number. The _ characters are ignored and only used for readability (0 = %00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000)
+
+Logical operations can still be performed via alternative instructions. But these are not perfect substitutes, they treat negative values differently, and some can produce non-binary outputs. 
+When using these, keep in mind that devices that wants a binary value will treat any non-binary values like this: >= 1 counts as "1" and <1 counts as "0".
+
+sll r? a(r?|num) b(r?|num)                       # Shift left the a binary of 8 positions (can be used to let the 8 first bits to op code)
+ins r? a(r?|num) b(r?|num) c(r?|num)             # Inserts into r a part of c beginning at a for b length.
+                                                 # ex: replacing a hash in sorter ins r0 FER_HASH 8 32 (32 standard lenght of hash) 
+or r? a(r?|num) b(r?|num)                        # If either bit is 1, the resulting bit is set to 1. If both bits are 0, the resulting bit is set to 0.
+                                                 # Can be used to concatenate a shifted binary and op Code. Better use ins rather than sll/or: ins replaces without mixing 
+
+srl r? a(r?|num) b(r?|num)                       # It shifts the bits to the right and fills the vacated leftmost bits with zeros
+sra r? a(r?|num) b(r?|num)                       # It shifts the bits to the right and fills the vacated leftmost bits with a copy of the sign bit (the most significant bit).
+and r? a(r?|num) b(r?|num)                       # If both bits are 1, the resulting bit is set to 1. Otherwise the resulting bit is set to 0.
+nor r? a(r?|num) b(r?|num)                       # Each bit of the result is determined by evaluating the corresponding bits of the input values. If both bits are 0, the resulting bit is set to 1.                                                 # Otherwise, if at least one bit is 1, the resulting bit is set to 0.
+not r? a(r?|num)                                 # If a bit is 1, it becomes 0, and if a bit is 0, it becomes 1. This is a bitwise operation, the NOT of 1 => -2, etc. You may want to use seqz instead
+sla r? a(r?|num) b(r?|num)                       # It shifts the bits to the left and fills the vacated rightmost bits with zeros (note that this is indistinguishable from 'sll').
+xor r? a(r?|num) b(r?|num) 
+
 
 
 Stack Traversing (Similar to how an array would be traversed in some other languages)
