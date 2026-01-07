@@ -1,0 +1,35 @@
+alias FurnaceAmount r0
+move FurnaceAmount 4 #define amount of furnaces for stack iteration
+
+clr db #reset chip RAM
+
+move sp 1 #Stack starts at 1
+#Add/remove furnaces names
+push HASH("Furnace1")
+push HASH("Furnace2")
+push HASH("Furnace3")
+push HASH("Furnace4")
+add FurnaceAmount FurnaceAmount 1 #+1 cos pop takes sp-1
+move sp FurnaceAmount
+
+alias FurnaceHash r1
+alias FurnaceId r2
+alias FurnaceOccupied r3
+
+iterate:
+yield
+beq sp 1 resetSp #sp=1: loop over, pop takes sp-1
+
+s d0 Setting sp
+
+pop FurnaceHash #get Hash at sp-1 and decrements
+lbn FurnaceId HASH("StructureArcFurnace") FurnaceHash ReferenceId Maximum
+s FurnaceId On 1
+ls FurnaceOccupied FurnaceId 0 Occupied
+beqz FurnaceOccupied iterate
+s FurnaceId Activate 1
+j iterate
+
+resetSp:
+move sp FurnaceAmount
+j iterate
