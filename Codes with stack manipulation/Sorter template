@@ -1,1 +1,88 @@
+Sorter mode:
+0 match all filters
+1 match any
+2 match none
 
+1)Concatenate an instruction:
+OP Code Instruction [8 bits] / [PARAMETER1] / [POTENTIAL PARAMETER2]
+ex:
+define steel HASH("ITEMSTEELINGOT")
+ins r0 steel 8 32                      #insert 32 bits hash in 8th place (after OP code) in r0
+ins r0 SorterInstruction.SorterInstruction.FilterPrefabHashEquals 0 8   #insert 8bits opcode  in 0th position in r0
+
+2) insert rule in sorter, ex:
+put sorter 0 r0 #insert rule r0 in stack0
+
+
+EXEMPLE
+
+alias sorter d0
+define Hash1 HASH("ItemSteelIngot")
+s sorter Mode 1 # Any
+clr sorter # erase any stale instructions in RAM
+
+ins r0 steel 8 32 
+or r0 r0 SorterInstruction.FilterPrefabHashEquals
+put sorter 0 r0
+
+
+LIST OF INSTRUCTIONS 
+
+Sort by Hash equal:
+define Hash1 HASH("ItemSteelIngot")
+ins r0 SorterInstruction.FilterPrefabHashEquals 0 8
+ins r0 Hash1 8 32
+
+Sort by Hash NOT equal:
+define Hash1 HASH("ItemSteelIngot")
+ins r0 SorterInstruction.FilterPrefabHashNotEqual 0 8
+ins r0 Hash1 8 32
+
+Sort by sorting class equal:
+define SortingClass 3
+ins r0 SorterInstruction.FilterSortingClassCompare 0 8
+#add r0 r0 256 add preshifted CONDOP
+ins r0 SortingClass 16 32
+
+Sort by sorting item type:
+define SortingType 3
+ins r0 SorterInstruction.FilterSlotTypeCompare 0 8
+#add r0 r0 256 add preshifted CONDOP
+ins r0 SortingType 16 32
+
+Sort by filter quantity (vs stack size of the items in the import slot)
+define Quantity 50
+ins r0 SorterInstruction.FilterQuantityCompare 0 8
+#add r0 r0 256 add preshifted CONDOP
+ins r0 Quantity 16 32
+
+Limit amount of execution (Ensures the next executable instruction will only return true a specified number of times. Each time it returns true, it decrements by one.)
+define Iterations 10
+ins r0 SorterInstruction.LimitNextExecutionByCount 0 8
+ins r0 Iteration 8 40
+
+
+Conditional Operation (CONDOP)	Value	Pre-shifted (ready to add)
+Equals	                        0	    0
+Greater	                        1	    256 (ex: add r0 r0 256)
+Less	                          2	    512
+NotEquals	                      3	    768
+
+FilterSlotTypeCompare 
+None	0		Helmet	1		Suit	2 Back	3		GasFilter	4		GasCanister	5	 Motherboard	6		Circuitboard	7		DataDisk	8	Organ	9		Ore	10	(Includes reagent mixes from recycler and ices)	Plant	11	
+Uniform	12		Entity	13		Battery	14	Egg	15		Belt	16		Tool	17	Appliance	18		Ingot	19		Torpedo	20	Cartridge	21		AccessCard	22		Magazine	23	Circuit	24		Bottle	25		ProgrammableChip	26	
+Glasses	27		CreditCard	28		DirtCanister	29	SensorProcessingUnit	30		LiquidCanister	31		LiquidBottle	32	Wreckage	33		SoundCartridge	34		DrillHead	35	ScanningHead	36		Flare	37		Blocked	38	
+SuitMod	39		Crate	40		Portables	41	
+
+Sorting classes
+0	Default	Items without a specific category assigned.
+1	Kits	All construction kits (e.g., Kit (Battery), Kit (Wall)).
+2	Tools	Handheld tools like Drills, Wrenches, and Arc Welders.
+3	Resources	Refined materials like Copper Ingots or Steel Plates.
+4	Food / Seeds	All consumable food items and planting seeds.
+5	Clothing	Uniforms, space suits, helmets, and backpacks.
+6	Appliances	Small machines such as Arc Furnaces or Microwave ovens.
+7	Atmospherics	Pipe components, tanks, gas filters, and valves.
+8	Storage	Containers like Crates, Lockers, and Canisters.
+9	Ores	All raw, unrefined mineral rocks.
+10	Ices	Raw frozen rocks: Volatile, Oxite, and Water Ice.
