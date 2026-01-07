@@ -19,9 +19,6 @@ alias FurnaceOccupied r3
 iterate:
 yield
 beq sp 1 resetSp #sp=1: loop over, pop takes sp-1
-
-s d0 Setting sp
-
 pop FurnaceHash #get Hash at sp-1 and decrements
 lbn FurnaceId HASH("StructureArcFurnace") FurnaceHash ReferenceId Maximum
 s FurnaceId On 1
