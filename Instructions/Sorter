@@ -1,1 +1,76 @@
+Sorter mode:
+0 match all filters
+1 match any
+2 match none
 
+clr: clear stack/RAM
+
+1)Concatenate an instruction:
+OP Code Instruction [8 bits] / [PARAMETER1] / [POTENTIAL PARAMETER2]
+ex:
+define steel HASH("ITEMSTEELINGOT")
+ins r0 steel 8 32                      #insert 32 bits hash in 8th place (after OP code) in r0
+ins r0 SorterInstruction.SorterInstruction.FilterPrefabHashEquals 0 8   #insert 8bits opcode  in 0th position in r0
+
+2) insert rule in sorter, ex:
+put sorter 0 r0 #insert rule r0 in stack0
+
+
+Useful commands
+
+push r?                                              #adds the value r? and increments the sp by 1.
+pop r?                                               #loads the value in the stack memory at index sp-1 into register r? and decrements the sp by 1.
+peek r?                                              #loads the value in the stack memory at index sp-1 into register r?.
+get r? d? address(r?|num)                            #loads the value in the stack memory at index address on provided device into register r?.
+getd r? id(r?|num) address(r?|num)                   #loads the value in the stack memory at index address on provided device id into register r?.
+put d? address(r?|num) value(r?|num)                 #adds the value to the stack memory off the provided device at index address.
+putd id(r?|num) address(r?|num) value(r?|num)        #adds the value to the stack memory off the provided device id at index address.
+
+sll r? a(r?|num) b(r?|num)                       # Shift left the a binary of 8 positions (can be used to let the 8 first bits to op code)
+ins r? a(r?|num) b(r?|num) c(r?|num)             # Inserts into r a part of c beginning at a for b length.
+                                                 # ex: replacing a hash in sorter ins r0 FER_HASH 8 32 (32 standard lenght of hash) 
+or r? a(r?|num) b(r?|num)                        # If either bit is 1, the resulting bit is set to 1. If both bits are 0, the resulting bit is set to 0.
+                                                 # Can be used to concatenate a shifted binary and op Code. Better use ins rather than sll/or: ins replaces without mixing
+
+
+Sorter Instruction	      OP Code	Description
+FilterPrefabHashEquals	    1	Compares Hash of item in import slot to the set hash and returns true if equal.
+FilterPrefabHashNotEquals	  2	Compares Hash of item in import slot to the set hash and returns true if not equal.
+FilterSortingClassCompare	  3	Compares the sorting class of an object in input slot. Example would be all ores.
+FilterSlotTypeCompare	      4	Compares the item type of an object in the input slot. See slot type table below for item comparisons.
+FilterQuantityCompare	      5	Compares the stack size of the items in the import slot.
+LimitNextExecutionByCount	  6	Ensures the next executable instruction will only return true a specified number of times. Each time it returns true, it decrements by one.
+
+Conditional Operation (CONDOP)	Value	Pre-shifted
+Equals	                        0	    0
+Greater	                        1	    256
+Less	                          2	    512
+NotEquals	                      3	    768
+
+SorterInstruction.FilterPrefabHashEquals OP_CODE:1
+0-7     OP_CODE
+8-39    PREFAB_HASH
+40-63   UNUSED
+SorterInstruction.FilterPrefabHashNotEquals OP_CODE:2
+0-7     OP_CODE
+8-39    PREFAB_HASH
+40-63   UNUSED
+SorterInstruction.FilterSortingClassCompare OP_CODE:3
+0-7     OP_CODE
+8-15    CONDITION_OPERATION
+16-31   SORTING_CLASS
+32-63   UNUSED
+SorterInstruction.FilterSlotTypeCompare OP_CODE:4
+0-7     OP_CODE
+8-15    CONDITION_OPERATION
+16-31   SLOT_TYPE
+32-63   UNUSED
+SorterInstruction.FilterQuantityCompare OP_CODE:5
+0-7     OP_CODE
+8-15    CONDITION_OPERATION
+16-31   QUANTITY
+32-63   UNUSED
+SorterInstruction.LimitNextExecutionByCount OP_CODE:6
+0-7     OP_CODE
+8-39    COUNT
+40-63   UNUSED
