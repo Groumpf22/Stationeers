@@ -3,6 +3,8 @@ Sorter mode:
 1 match any
 2 match none
 
+match item : export 2 
+
 1)Concatenate an instruction:
 OP Code Instruction [8 bits] / [PARAMETER1] / [POTENTIAL PARAMETER2]
 ex:
