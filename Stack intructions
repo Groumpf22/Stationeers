@@ -18,22 +18,16 @@ move sp {min value}
 loop:
 add sp sp 1
 peek r0
-
 #do something here with your stack values (loaded into r0)
-
 blt sp {max value} loop
-
 #continue on
 
 Alternatively, you can use the pop function's decrementing to make a more efficient loop:
-
 move sp {max value}
 add sp sp 1
 loop:
 pop r0
 
 #do something here with your stack values (loaded into r0)
-
 bgt sp {min value} loop
-
 #continue on
