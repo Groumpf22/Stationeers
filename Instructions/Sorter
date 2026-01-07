@@ -3,6 +3,8 @@ Sorter mode:
 1 match any
 2 match none
 
+match item : export 2 
+
 clr: clear stack/RAM
 
 1)Concatenate an instruction:
