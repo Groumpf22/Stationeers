@@ -1,67 +1,96 @@
 Sorter mode:
-0 match all filters
-1 match any
-2 match none
-
-match item : export 2 
+0 match all filters AND
+1 match any OR
+2 match none NOT
+match item : sent to export 2 
 
 1)Concatenate an instruction:
-OP Code Instruction [8 bits] / [PARAMETER1] / [POTENTIAL PARAMETER2]
-ex:
-define steel HASH("ITEMSTEELINGOT")
-ins r0 steel 8 32                      #insert 32 bits hash in 8th place (after OP code) in r0
-ins r0 SorterInstruction.SorterInstruction.FilterPrefabHashEquals 0 8   #insert 8bits opcode  in 0th position in r0
+# OP Code Instruction [8 bits] / [PARAMETER1] / [POTENTIAL PARAMETER2]
+
+alias Instruction r0
+or Instruction Instruction SorterInstruction.FilterSlotTypeCompare # OPcode to 0-8
+#add r0 r0 256 # add preshifted CONDOP / if AND filter, let 0, do not use
+define SlotType 3 #define parameter
+sll Parameter SlotType 16 #shifts parameter to bit 16 
+or Instruction Instruction Parameter #parameter to instructions
 
 2) insert rule in sorter, ex:
-put sorter 0 r0 #insert rule r0 in stack0
+put SorterX InstrLine Instruction
 
+####Exemple for 1 sorter on d0
 
-EXEMPLE
+alias Instruction r0
+alias InstrLine r1
+alias Parameter r2
+alias SorterPin r3
+alias SorterX r4
 
-alias sorter d0
-define Hash1 HASH("ItemSteelIngot")
-s sorter Mode 1 # Any
-clr sorter # erase any stale instructions in RAM
+#Sorter 1 en pin 0
+move SorterPin 0 #Enter the sorter pin of the sorter
+sb 873418029 On 1 #all sorters On
+alias SorterX dr3
+clr SorterX
+s SorterX On 1
+# Instruction 1 en place 0
+move Instruction 0
+move InstrLine 0
+define SlotType 3 #to be filed
+or Instruction Instruction SorterInstruction.FilterSlotTypeCompare # OPcode to 0-8
+sll Parameter SlotType 16 #shifts slot type to bit 16
+or Instruction Instruction Parameter #slotype to instructions
 
-ins r0 steel 8 32 
-or r0 r0 SorterInstruction.FilterPrefabHashEquals
-put sorter 0 r0
 
 
 LIST OF INSTRUCTIONS 
 
-Sort by Hash equal:
-define Hash1 HASH("ItemSteelIngot")
-ins r0 SorterInstruction.FilterPrefabHashEquals 0 8
-ins r0 Hash1 8 32
+####Header before Sort by below
+#clr Sorter
+#move Instruction 0
+#move InstrLine 0
 
-Sort by Hash NOT equal:
-define Hash1 HASH("ItemSteelIngot")
-ins r0 SorterInstruction.FilterPrefabHashNotEqual 0 8
-ins r0 Hash1 8 32
+####Sort by Hash equal
+#define Hash1 HASH("ItemSteelIngot")
+#or Instruction Instruction SorterInstruction.FilterPrefabHashEquals # OPcode to 0-8
+#sll Parameter SlotType 8 #shifts slot type to bit 8
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
 
-Sort by sorting class equal:
-define SortingClass 3
-ins r0 SorterInstruction.FilterSortingClassCompare 0 8
-#add r0 r0 256 add preshifted CONDOP
-ins r0 SortingClass 16 32
+####Sort by Hash NOT equal:
+#define Hash1 HASH("ItemSteelIngot")
+#or Instruction Instruction SorterInstruction.FilterPrefabHashNotEqual # OPcode to 0-8
+#sll Parameter SlotType 8
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
 
-Sort by sorting item type:
-define SortingType 3
-ins r0 SorterInstruction.FilterSlotTypeCompare 0 8
-#add r0 r0 256 add preshifted CONDOP
-ins r0 SortingType 16 32
+####Sort by sorting class equal:
+#define SortingClass 3
+#or Instruction Instruction SorterInstruction.FilterSortingClassCompare # OPcode to 0-8
+#add r0 r0 256 # add preshifted CONDOP / if AND filter, let 0, do not use
+#sll Parameter SlotType 16
+#or Instruction Instruction Parameter #sorting class to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
 
-Sort by filter quantity (vs stack size of the items in the import slot)
-define Quantity 50
-ins r0 SorterInstruction.FilterQuantityCompare 0 8
-#add r0 r0 256 add preshifted CONDOP
-ins r0 Quantity 16 32
+####Sort by sorting item slot type:
+#or Instruction Instruction SorterInstruction.FilterSlotTypeCompare # OPcode to 0-8
+#add r0 r0 256 # add preshifted CONDOP / if AND filter, let 0, do not use
+#sll Parameter SlotType 16 #shifts slot type to bit 16
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
 
-Limit amount of execution (Ensures the next executable instruction will only return true a specified number of times. Each time it returns true, it decrements by one.)
+####Sort by filter quantity (vs stack size of the items in the import slot)
+#define Quantity 50
+#or Instruction Instruction SorterInstruction.FilterQuantityCompare # OPcode to 0-8
+#add r0 r0 256 # add preshifted CONDOP / if AND filter, let 0, do not use
+#sll Parameter SlotType 16 #shifts slot type to bit 16
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
+
+####Limit amount of execution
 define Iterations 10
-ins r0 SorterInstruction.LimitNextExecutionByCount 0 8
-ins r0 Iteration 8 40
+or Instruction Instruction SorterInstruction.LimitNextExecutionByCount # OPcode to 0-8
+sll Parameter SlotType 8 #shifts slot type to bit 1
+or Instruction Instruction Parameter #slotype to instructions
+put Sorter InstrLine Instruction #Instruction to line InstrLine
 
 
 Conditional Operation (CONDOP)	Value	Pre-shifted (ready to add)
@@ -70,11 +99,13 @@ Greater	                        1	    256 (ex: add r0 r0 256)
 Less	                          2	    512
 NotEquals	                      3	    768
 
+
 FilterSlotTypeCompare 
 None	0		Helmet	1		Suit	2 Back	3		GasFilter	4		GasCanister	5	 Motherboard	6		Circuitboard	7		DataDisk	8	Organ	9		Ore	10	(Includes reagent mixes from recycler and ices)	Plant	11	
 Uniform	12		Entity	13		Battery	14	Egg	15		Belt	16		Tool	17	Appliance	18		Ingot	19		Torpedo	20	Cartridge	21		AccessCard	22		Magazine	23	Circuit	24		Bottle	25		ProgrammableChip	26	
 Glasses	27		CreditCard	28		DirtCanister	29	SensorProcessingUnit	30		LiquidCanister	31		LiquidBottle	32	Wreckage	33		SoundCartridge	34		DrillHead	35	ScanningHead	36		Flare	37		Blocked	38	
 SuitMod	39		Crate	40		Portables	41	
+
 
 Sorting classes
 0	Default	Items without a specific category assigned.
@@ -88,3 +119,12 @@ Sorting classes
 8	Storage	Containers like Crates, Lockers, and Canisters.
 9	Ores	All raw, unrefined mineral rocks.
 10	Ices	Raw frozen rocks: Volatile, Oxite, and Water Ice.
+
+
+
+
+
+
+
+
+
