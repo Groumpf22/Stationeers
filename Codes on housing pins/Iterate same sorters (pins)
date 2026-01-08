@@ -1,0 +1,79 @@
+define SortersAmount 6 #Max 6 sorters (6 pins)
+alias Instruction r1
+alias InstrLine r2
+alias Parameter r3
+alias SorterX r4
+alias SorterPin r5
+
+sb 873418029 On 1 #all sorters On
+move SorterPin 0 #initialize pin nb
+
+loopSorters:
+beq SorterPin SortersAmount exit
+alias SorterX dr5
+add SorterPin SorterPin 1
+clr SorterX
+s SorterX On 1
+# Instruction 1 en place 0
+move Instruction 0 #clears instruction
+move InstrLine 0 #move to line 0
+define SlotType 3 #to be filed
+or Instruction Instruction SorterInstruction.FilterSlotTypeCompare # OPcode to 0-8
+sll Parameter SlotType 16 #shifts slot type to bit 16
+or Instruction Instruction Parameter #slotype to instructions
+put SorterX InstrLine Instruction
+j loopSorters
+
+exit:
+
+#Mode 0 AND, 1 OR, 2 NO
+#CONDOP = > > != 0 256 512 768 (preshifted, just add R0 a)
+
+####Header before Sort by below
+#clr Sorter
+#move Instruction 0
+#move InstrLine 0
+
+####Sort by Hash equal
+#define Hash1 HASH("ItemSteelIngot")
+#or Instruction Instruction SorterInstruction.FilterPrefabHashEquals # OPcode to 0-8
+#sll Parameter SlotType 8 #shifts slot type to bit 8
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
+
+####Sort by Hash NOT equal:
+#define Hash1 HASH("ItemSteelIngot")
+#or Instruction Instruction SorterInstruction.FilterPrefabHashNotEqual # OPcode to 0-8
+#sll Parameter SlotType 8
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
+
+####Sort by sorting class equal:
+#define SortingClass 3
+#or Instruction Instruction SorterInstruction.FilterSortingClassCompare # OPcode to 0-8
+#add r0 r0 256 # add preshifted CONDOP / if AND filter, let 0, do not use
+#sll Parameter SlotType 16
+#or Instruction Instruction Parameter #sorting class to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
+
+####Sort by sorting item slot type:
+#or Instruction Instruction SorterInstruction.FilterSlotTypeCompare # OPcode to 0-8
+#add r0 r0 256 # add preshifted CONDOP / if AND filter, let 0, do not use
+#sll Parameter SlotType 16 #shifts slot type to bit 16
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
+
+#Sort by filter quantity (vs stack size of the items in the import slot)
+#define Quantity 50
+#or Instruction Instruction SorterInstruction.FilterQuantityCompare # OPcode to 0-8
+#add r0 r0 256 # add preshifted CONDOP / if AND filter, let 0, do not use
+#sll Parameter SlotType 16 #shifts slot type to bit 16
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
+
+#Limit amount of execution
+#define Iterations 10
+#or Instruction Instruction SorterInstruction.LimitNextExecutionByCount # OPcode to 0-8
+#sll Parameter SlotType 8 #shifts slot type to bit 1
+#or Instruction Instruction Parameter #slotype to instructions
+#put Sorter InstrLine Instruction #Instruction to line InstrLine
