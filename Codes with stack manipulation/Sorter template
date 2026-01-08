@@ -13,6 +13,7 @@ or Instruction Instruction SorterInstruction.FilterSlotTypeCompare # OPcode to 0
 define SlotType 3 #define parameter
 sll Parameter SlotType 16 #shifts parameter to bit 16 
 or Instruction Instruction Parameter #parameter to instructions
+put SorterX InstrLine Instruction
 
 2) insert rule in sorter, ex:
 put SorterX InstrLine Instruction
