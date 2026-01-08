@@ -1,0 +1,29 @@
+alias Iterate r0
+define FurnaceAmount 3 #number of furnaces to be inserted
+alias FurnaceStatus r1
+sb -247344692 On 1
+
+
+Main:
+sleep 1
+lbs FurnaceStatus -247344692 0 Occupied Maximum #check for occupied funace
+beqz FurnaceStatus Main #loop if all empty
+move Iterate 0
+
+checkFurnaces:
+beq Iterate FurnaceAmount Main #go to main if iterated
+alias FurnaceInCheck dr0 #Attibue a pin to furnace
+add Iterate Iterate 1 #iterate the cursor
+s FurnaceInCheck On 1 #Set On in case of instable power
+l FurnaceStatus FurnaceInCheck Activate #check if activate
+beq FurnaceStatus 0 CheckLoaded #if not activate, check if loaded
+j checkFurnaces
+
+CheckLoaded:
+ls FurnaceStatus FurnaceInCheck 0 Occupied #check if occupied
+beq FurnaceStatus 1 ActivateFurnace
+j checkFurnaces
+
+ActivateFurnace:
+s FurnaceInCheck Activate 1
+j checkFurnaces
