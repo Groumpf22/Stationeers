@@ -1,0 +1,45 @@
+alias Fab d0
+alias Stack d1
+alias Button1 d2
+alias Fab2 d3
+alias Fab3 d4
+
+alias Amount r0
+alias ButtonActive r1
+alias Instruction r2
+alias PrintHash r3
+alias Printing r4
+
+buttonLoop:
+yield
+l ButtonActive Button1 Activate
+beq ButtonActive 0 buttonLoop
+l Printing Fab Activate
+bnez Printing buttonLoop
+
+
+print:
+s Fab Open 0
+s Fab2 Open 1
+s Fab3 Open 1
+l Amount Stack Setting #get stacker amount
+bgeal Amount 250 set250 #max 250, reduce if more
+l PrintHash Fab RecipeHash #read recipe on fab
+move Instruction 0 #reset instruction
+put Fab 0 Instruction #reset fab command 0
+sll Amount Amount 8 #add amount
+or Instruction Instruction Amount
+sll PrintHash PrintHash 16
+or Instruction Instruction PrintHash
+or Instruction Instruction PrinterInstruction.ExecuteRecipe #add op code print
+put Fab 0 Instruction # print
+
+printing:
+yield #loop until printing finished
+l Printing Fab Activate
+beqz Printing buttonLoop
+j printing
+
+set250:
+move Amount 249
+j ra
