@@ -1,6 +1,12 @@
+# Control of 1 fab in a loop of max 4 fabs, set stacker for quty
+# use lever button, lever reset after printing, cancels if reseted manually
+
+#
+alias Display d5
+#
 alias Fab d0
 alias Stack d1
-alias Button1 d2
+alias Lever1 d2
 alias Fab2 d3
 alias Fab3 d4
 
@@ -10,13 +16,12 @@ alias Instruction r2
 alias PrintHash r3
 alias Printing r4
 
+clr Fab
+
 buttonLoop:
 yield
-l ButtonActive Button1 Activate
-beq ButtonActive 0 buttonLoop
-l Printing Fab Activate
-bnez Printing buttonLoop
-
+l ButtonActive Lever1 Setting
+beq ButtonActive 0 buttonLoop  #loops if button not active
 
 print:
 s Fab Open 0
@@ -36,10 +41,22 @@ put Fab 0 Instruction # print
 
 printing:
 yield #loop until printing finished
-l Printing Fab Activate
-beqz Printing buttonLoop
+l Printing Fab Activate # Printing = 1 if WIP
+l ButtonActive Lever1 Setting
+beqz ButtonActive clearPrinter #lever on 0: cancel
+get Instruction Fab 0
+beqz Instruction reinitialize #Printing over: fab auto delete the line
 j printing
 
 set250:
-move Amount 249
+move Amount 250
 j ra
+
+clearPrinter:
+s Fab Activate 0
+clr Fab
+j buttonLoop
+
+reinitialize:
+s Lever1 Open 0
+j buttonLoop
