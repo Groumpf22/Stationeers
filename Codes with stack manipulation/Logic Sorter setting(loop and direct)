@@ -1,0 +1,53 @@
+mips
+# 2026 Foundation Reset
+# Logic Sorter Hash: 873418029
+# Mode 1: ANY (Match -> Left) | Mode 2: NONE (No Match -> Left)
+
+# --- PART 1: COMPLEX SORTERS (MANUAL CONFIG) ---
+
+# SorterLAllRIces: All Ices to RIGHT (Mode 2 sends Match Right)
+# SortingClass 10 = Ice. Match Ice -> Right. Others -> Left.
+lbn r0 873418029 HASH("SorterLAllRIces") ReferenceId Maximum
+clrd r0
+s r0 Mode 2
+sll r1 10 8
+add r1 r1 3             # OpCode 3: FilterSortingClassCompare
+putd r0 0 r1
+
+# SorterLAllROres-Co-C: Ores RIGHT except Coal/Cobalt. Ices LEFT.
+# Strategy: Mode 2 (Match -> Right). Match Ore Class (9), 
+# then "exclude" Coal and Cobalt by putting them in Slot 1 and 2.
+lbn r0 873418029 HASH("SorterLAllROres-Co-C") ReferenceId Maximum
+clrd r0
+s r0 Mode 2
+sll r1 9 8              # Class 9 = Ore
+add r1 r1 3             # OpCode 3
+putd r0 0 r1            # Match Ore -> Right
+sll r1 HASH("ItemCoalOre") 8
+add r1 r1 2             # OpCode 2: FilterPrefabHashNotEquals
+putd r0 1 r1            # Match NOT Coal -> Right (so Coal -> Left)
+sll r1 HASH("ItemCobaltOre") 8
+add r1 r1 2
+putd r0 2 r1            # Match NOT Cobalt -> Right (so Cobalt -> Left)
+
+# --- PART 2: SIMPLE SORTERS (LOOP CONFIG) ---
+# Data: [NameHash, ItemHash]
+push HASH("SorterLCarbonRall")  ; push HASH("ItemCoalOre")
+push HASH("SorterLOxyteRAll")   ; push HASH("ItemOxiteIce")
+push HASH("SorterLVolatileRAll"); push HASH("ItemVolatileIce")
+push HASH("SorterLWIceRAll")    ; push HASH("ItemWaterIce")
+push HASH("SorterLIngotRAll")   ; push HASH("ItemIronIngot")
+
+loop:
+pop r1                # Item Hash
+pop r0                # Name Hash
+lbn r2 873418029 r0 ReferenceId Maximum
+beqz r2 next
+clrd r2
+s r2 Mode 1           # Mode 1: Match -> Left
+sll r3 r1 8
+add r3 r3 1           # OpCode 1: FilterPrefabHashEquals
+putd r2 0 r3
+next:
+bnez sp loop
+hcf                   # Halt execution
