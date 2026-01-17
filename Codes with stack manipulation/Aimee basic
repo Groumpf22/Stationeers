@@ -1,0 +1,106 @@
+#AIMEE 100 Inlet South (ZChute 240)
+define XChute -602 #Enter chute coords
+define YChute 264
+define ZChute 240
+define MinCharge 0.2
+#Shifting pos (80-14.1/-5.13 100-14.8/2.8)
+define ShiftPositionX -14.77
+define ShiftPositionZ 2.6
+
+alias XPosIni r0
+alias YPosIni r1
+alias ZPosIni r2
+alias ModeRobot r3
+alias ChargeStatus r4
+alias CallBack r5
+alias MineablePresent r6
+alias Robot db
+alias IsInitialized r15
+
+# --- INITIALIZATION ---
+# This runs once when the chip turns on
+main:
+yield
+bne IsInitialized 0 roamingTrigger #If initialized skip to roaming
+l XPosIni db PositionX  #define search point as where turned on
+l YPosIni db PositionY
+l ZPosIni db PositionZ
+move IsInitialized 1
+# -----------------------
+
+roamingTrigger:
+s Robot Mode RobotMode.Roam #switch to roaming
+yield
+yield
+yield #give time to initialize roaming
+
+roamingLoop:
+yield
+l CallBack db Mode
+beq CallBack 7 returnToChute #return if called back
+ls ChargeStatus Robot 0 ChargeRatio
+blt ChargeStatus MinCharge returnToChute #return to chute if charge low
+l ModeRobot Robot Mode
+beq ModeRobot 6 returnToChute #return when full
+beqz ModeRobot shiftPosition #return when roaming finished
+j roamingLoop
+
+
+returnToChute:
+s Robot TargetX XChute
+s Robot TargetY YChute
+s Robot TargetZ ZChute
+s Robot Mode RobotMode.MoveToTarget
+yield
+yield
+yield
+yield
+
+returning:
+yield
+l ModeRobot Robot Mode
+# Loop until robot reaches 'None' (0) state
+beqz ModeRobot atChute
+j returning
+
+atChute:
+s Robot Mode RobotMode.Unload
+beq CallBack 7 stop
+
+unloading:
+yield
+l ModeRobot Robot Mode #loop until emptied (clears mode)
+beqz ModeRobot checkBattery #check battery when empty
+j unloading
+
+checkBattery:
+yield
+ls ChargeStatus Robot 0 ChargeRatio
+blt ChargeStatus 0.99 checkBattery #loop until wirelss battery charged
+
+returnToMine:
+s Robot TargetX XPosIni
+s Robot TargetY YPosIni
+s Robot TargetZ ZPosIni
+s Robot Mode RobotMode.MoveToTarget
+
+returningToMine:
+yield
+l ModeRobot Robot Mode #loop until arrived
+l YPosIni Robot PositionY
+s Robot TargetX XPosIni
+s Robot TargetY YPosIni
+s Robot TargetZ ZPosIni
+s Robot Mode RobotMode.MoveToTarget
+yield
+yield
+beqz ModeRobot roamingTrigger
+j returningToMine
+
+shiftPosition:
+add XPosIni XPosIni ShiftPositionX #shit position if not ore at vicinity
+add ZPosIni ZPosIni ShiftPositionZ
+l YPosIni Robot PositionY
+j returnToMine
+
+stop:
