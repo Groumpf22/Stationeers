@@ -1,0 +1,124 @@
+define XChute -602 #Enter chute coords
+define YChute 264
+define ZChute 240
+define XMine 0 #define center of spiral pattern
+define YMine 65
+define ZMine 0
+define MinCharge 0.1 #min 10% charge:2.3km d'autonomie
+define MaxXY 800 #Max radius around 0,0
+alias XTether r0 #Tether: temporay center of 15m radius roaming
+alias YTether r1
+alias ZTether r2
+alias XCurrent r3
+alias YCurrent r4
+alias ZCurrent r5
+alias ModeRobot r6
+alias CallBack r7
+alias MineablePresent r8
+alias StayAtChute r9
+alias LastX r10
+alias LastZ r11
+alias StuckCount r12
+alias Var1 r13
+alias var2 r14
+alias AlternateShiftTether r15
+alias Robot db
+
+startRoaming:
+s Robot Mode RobotMode.Roam
+yield #give time to initialize roaming
+yield
+yield
+
+roamingControl:
+yield
+l CallBack db Mode #return if called back, stay
+beq CallBack 7 returnToChute #mode 7 doesn't exist, used to communicate
+ls Var1 Robot 0 ChargeRatio #rtb if battery <10%
+ble Var1 MinCharge returnToChute
+l ModeRobot Robot Mode #rtb if full
+beq ModeRobot 6 returnToChute #Mode 6: RobotMode.StorageFull
+l XCurrent Robot PositionX #boundary playablezone -> above MaXY, return and power off
+abs XCurrent XCurrent
+bgt XCurrent MaxXY endMining
+l ZCurrent Robot PositionZ
+abs ZCurrent ZCurrent
+bgt ZCurrent MaxXY endMining
+l ModeRobot Robot Mode
+beqz ModeRobot shiftTether
+jal checkForStuck
+j roamingControl
+
+endMining:
+move StayAtChute 1
+returnToChute
+
+returnToChute:
+##################################### add collision base
+s Robot TargetX XChute
+s Robot TargetY YChute
+s Robot TargetZ ZChute
+s Robot Mode RobotMode.MoveToTarget
+sleep 5
+waitingForMode0 #wating to be at chute (mode 0)
+s Robot Mode RobotMode.Unload
+waitingForMode0 #waiting to be unloaded (mode0)
+ls Var1 Robot 0 ChargeRatio
+sle StayAtChute Var1 0.1
+bgtz StayAtChute stop
+
+checkForStuck:
+l XCurrent Robot PositionX
+l ZCurrent Robot PositionZ
+sub Var1 LastX XCurrent #var1 = var2/last pos - current pos
+abs Var1 Var1
+sub var2 LastZ ZCurrent #var3 = var4/last pos - current pos
+abs var2 var2
+add Var1 Var1 var2 #Var1 = total distance X + Z
+slt Var1 Var1 0.1 #var5 1 si mvt<0.1 / 0 if moved
+add StuckCount StuckCount Var1 #add 1/0
+mul StuckCount StuckCount Var1 #multiply by 1/0 -> reset if didn't move
+bgt StuckCount 50 unblock #go to unblock if stuck
+j ra
+
+unblock:
+l Robot Mode ModeRobot
+l XCurrent Robot PositionX
+l YCurrent Robot PositionY
+l ZCurrent Robot PositionZ
+s Robot TargetX XCurrent
+s Robot TargetY YCurrent
+s Robot TargetZ ZCurrent
+s Robot Mode 5
+sleep 5
+s Robot Mode ModeRobot #Return to mode
+move StuckCount 0
+j ra
+
+waitingForMode0:
+sleep 3
+l ModeRobot Robot Mode
+l YCurrent Robot PositionY #readjust Y to avoid stuck
+s Robot TargetY PositionY
+bnez ModeRobot waitingForMode0
+j ra
+
+shiftTether:
+beqz AlternateShiftTether shiftZ #alter=0 shift Z
+l XCurrent Robot PositionX
+abs Var1 XCurrent
+add Var1 Var1 15
+bltz XCurrent negativeNb
+move AlternateShiftTether 0
+
+shiftZ:
+l ZCurrent Robot PositionZ
+abs Var1 ZCurrent
+add Var1 Var1 15
+
+move AlternateShiftTether 1
+
+negativeNb:
+
+stop:
+s Robot On 0
