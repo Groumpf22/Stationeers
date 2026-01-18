@@ -24,7 +24,7 @@ move Pointer 0 #initialize cursor
 j iterateCentrifuge
 
 iterateCentrifuge:
-bgez Pointer CentrifugeNumber main #exit loop if iteration done (sp 0->nb-1, exit at nb)
+bge Pointer CentrifugeNumber main #exit loop if iteration done (sp 0->nb-1, exit at nb)
 get CentriHash db Pointer
 add Pointer r1 1 #increment counter
 
