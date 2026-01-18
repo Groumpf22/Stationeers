@@ -1,13 +1,13 @@
 #Centrifugal auto empty max 6
 clr db
 define CentrifugeNumber 7 #To be modified depending on number
-define HASH("Centrifuge1")
-define HASH("Centrifuge2")
-define HASH("Centrifuge3")
-define HASH("Centrifuge4")
-define HASH("Centrifuge5")
-define HASH("Centrifuge6")
-define HASH("Centrifuge7")
+push HASH("Centrifuge1")
+push HASH("Centrifuge2")
+push HASH("Centrifuge3")
+push HASH("Centrifuge4")
+push HASH("Centrifuge5")
+push HASH("Centrifuge6")
+push HASH("Centrifuge7")
 
 alias InError r0
 alias Pointer r1
