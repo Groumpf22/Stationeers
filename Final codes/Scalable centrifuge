@@ -14,11 +14,13 @@ alias Pointer r1
 alias HatchOpen r2
 alias ReagentCount r3
 alias CentriHash r4
+alias CentriId r5
+move r0 0
 
 main:
 yield
 yield
-lb InError 690945935 Error Maximum #If one machine is in error
+lb InError HASH("StructureCentrifuge") Error Maximum #If one machine is in error
 beqz InError main #skip to yield and loop if none in error
 move Pointer 0 #initialize cursor
 j iterateCentrifuge
@@ -27,12 +29,12 @@ iterateCentrifuge:
 bge Pointer CentrifugeNumber main #exit loop if iteration done (sp 0->nb-1, exit at nb)
 get CentriHash db Pointer
 add Pointer r1 1 #increment counter
-
-lbn InError HASH("StructureCentrifuge") CentriHash Error Maximum #read error Centri
+lbn CentriId HASH("StructureCentrifuge") CentriHash ReferenceId Maximum
+l InError CentriId Error
 beqz InError iterateCentrifuge  #skip if not in error
 
-lbn HatchOpen HASH("StructureCentrifuge") CentriHash Open Maximum #read reagent Centri
-lbn ReagentCount HASH("StructureCentrifuge") CentriHash Reagents Sum #read reagent Centri
+l HatchOpen CentriId Open #read open
+l ReagentCount CentriId Reagents #read reagent Centri
 
 beqz HatchOpen openIfFull # closed: empty if full
 
@@ -45,9 +47,9 @@ beq ReagentCount 400 openHatch
 j iterateCentrifuge
 
 openHatch:
-sbn HASH("StructureCentrifuge") CentriHash Open 1
+s CentriId Open 1
 j iterateCentrifuge
 
 closeHatch:
-sbn HASH("StructureCentrifuge") CentriHash Open 0
+s CentriId Open 0
 j iterateCentrifuge
