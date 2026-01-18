@@ -1,0 +1,25 @@
+#setup : loop pump, in-line tank, A/C, Shutff v/ve, heat exchanger
+#valve closed: empties heat exchanger, avoid freezing
+
+alias CoolantSensor d0
+alias ShutValve d1
+
+define mintemp 195
+define maxtemp 205
+
+start:
+yield
+yield
+l r0 CoolantSensor Temperature
+# If the temperature < mintemp, close shut off valve
+blt r0 mintemp closeValve
+# If the temperature > maxtemp, open shut off valve
+bgt r0 maxtemp openValve
+j start
+
+closeValve:
+s ShutValve On 0
+j start
+openValve:
+s ShutValve On 1
+j start
