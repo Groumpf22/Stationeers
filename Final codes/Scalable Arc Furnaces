@@ -1,0 +1,29 @@
+clr db #reset chip RAM
+define FurnaceAmount 3 #define amount of furnaces for stack iteration
+#Add/remove furnaces names
+push HASH("Furnace1")
+push HASH("Furnace2")
+push HASH("Furnace3")
+
+alias FurnaceHash r1
+alias FurnaceId r2
+alias FurnaceOccupied r3
+alias Pointer r4
+sub Pointer FurnaceAmount 1 #pointer at 3 for 4 furnaces (sp0->3)
+
+iterate:
+yield
+yield
+beq Pointer -1 resetPointer #sp=1: loop over, pop takes sp-1
+get FurnaceHash db Pointer
+sub Pointer Pointer 1
+lbn FurnaceId HASH("StructureArcFurnace") FurnaceHash ReferenceId Maximum
+s FurnaceId On 1
+ls FurnaceOccupied FurnaceId 0 Occupied
+beqz FurnaceOccupied iterate
+s FurnaceId Activate 1
+j iterate
+
+resetPointer:
+sub Pointer FurnaceAmount 1
+j iterate
