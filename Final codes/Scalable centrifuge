@@ -1,5 +1,5 @@
 #Centrifugal auto empty max 6
-
+clr db
 define CentrifugeNumber 7 #To be modified depending on number
 define HASH("Centrifuge1")
 define HASH("Centrifuge2")
