@@ -37,7 +37,7 @@ lbn ReagentCount HASH("StructureCentrifuge") CentriHash Reagents Sum #read reage
 beqz HatchOpen openIfFull # closed: empty if full
 
 #hatch open
-beqz ReagentCount closeHatch #Empty -> close
+ble ReagentCount 10 closeHatch #less than 10 -> close (some reagents can pass)
 j iterateCentrifuge
 
 openIfFull:
