@@ -1,0 +1,29 @@
+clr db #reset chip RAM
+define DeviceAmount 3 #define amount of devices for stack iteration
+#Add/remove devices names
+push HASH("Furnace1")
+push HASH("Furnace2")
+push HASH("Furnace3")
+
+alias DeviceNameHash r0
+alias DeviceId r1
+alias Pointer r2
+move Pointer 0
+
+iterate:
+yield
+yield
+bge Pointer DeviceAmount resetPointer
+
+get DeviceNameHash db Pointer
+add Pointer Pointer 1
+
+lbn DeviceId HASH("StructureArcFurnace") DeviceNameHash ReferenceId Maximum
+
+####### Instructions to device  ######
+
+j iterate
+
+resetPointer:
+move Pointer 0
+j iterate
