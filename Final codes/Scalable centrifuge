@@ -17,6 +17,8 @@ alias CentriHash r4
 alias CentriId r5
 move r0 0
 
+sb HASH("StructureCentrifuge") On 1
+
 main:
 yield
 yield
