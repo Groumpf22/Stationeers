@@ -1,0 +1,25 @@
+clr db
+alias SeedState r0
+sb HASH("StructureHarvie") On 1
+
+controlLoop:
+yield
+yield
+lbs SeedState HASH("StructureHydroponicsTrayData") 0 SeedingRatio Minimum #read all seeded
+bge SeedState 1 pulseHarvest #if yes harvest
+lbs SeedState HASH("StructureHydroponicsTrayData") 0 Occupied Maximum #read all empty?
+beqz SeedState plant
+j controlLoop
+
+pulseHarvest:
+sb HASH("StructureHarvie") Harvest 1
+yield
+sb HASH("StructureHarvie") Harvest 0
+sleep 2 # loop to avoid chute bottleneck
+lbs SeedState HASH("StructureHydroponicsTrayData") 0 Occupied Maximum #max occup = 0 : all
+bge SeedState 1 pulseHarvest #harvest until all empty
+j controlLoop
+
+plant:
+sb HASH("StructureHarvie") Plant 1 #if yes plant
+j controlLoop
