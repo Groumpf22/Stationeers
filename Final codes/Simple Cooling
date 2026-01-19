@@ -1,0 +1,28 @@
+# ---- IC10 Schmitt Trigger ----
+# -- Standard - i.e. "cooling"
+
+#When the temperature sensor device reports a value
+# higher than TempMax and the valve is not On, the
+# valve will turn On.
+
+#When the valve is On, and the sensor device reports
+# higher than TempMin, the valve will remain on.
+
+#Once that sensor reports a temperature lower than
+# TempMin, the valve will once again shut off and
+# this cycle will continue indefinitely:
+
+define TempMax 296.15 #23C
+define TempMin 283.15 #10C
+
+alias Device d0
+alias Sensor d1
+
+example1:
+ yield
+ l r0 Device On
+ select r0 r0 TempMin TempMax
+ l r1 Sensor Temperature
+ sgt r0 r1 r0
+ s Device On r0
+j example1
