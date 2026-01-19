@@ -1,0 +1,17 @@
+define Panels -539224550
+alias Sensor d0
+alias Hori r0
+alias Vert r1
+
+#sensor: front 0, 90, 180, -90
+#Panel: power 90, com 270
+#Data port sensor east, data port panel facing south
+#Data port sensor @180 panel (data left, power right)
+Start:
+yield
+l Hori Sensor Horizontal
+l Vert Sensor Vertical
+add Vert Vert 90
+sb Panels Horizontal Hori
+sb Panels Vertical Vert
+j Start
