@@ -1,4 +1,4 @@
-#Centrifugal auto empty max 6
+#Centrifugal auto emtpy change number and names
 clr db
 define CentrifugeNumber 7 #To be modified depending on number
 push HASH("Centrifuge1")
@@ -43,7 +43,7 @@ ble ReagentCount 10 closeHatch #less than 10 -> close (some reagents can pass)
 j iterateCentrifuge
 
 openIfFull:
-beq ReagentCount 400 openHatch
+bge ReagentCount 400 openHatch # full >=400 open
 j iterateCentrifuge
 
 openHatch:
