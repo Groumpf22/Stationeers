@@ -1,0 +1,55 @@
+#Centrifugal auto empty max 6
+clr db
+define CentrifugeNumber 7 #To be modified depending on number
+push HASH("Centrifuge1")
+push HASH("Centrifuge2")
+push HASH("Centrifuge3")
+push HASH("Centrifuge4")
+push HASH("Centrifuge5")
+push HASH("Centrifuge6")
+push HASH("Centrifuge7")
+
+alias InError r0
+alias Pointer r1
+alias HatchOpen r2
+alias ReagentCount r3
+alias CentriHash r4
+alias CentriId r5
+move r0 0
+
+main:
+yield
+yield
+lb InError HASH("StructureCentrifuge") Error Maximum #If one machine is in error
+beqz InError main #skip to yield and loop if none in error
+move Pointer 0 #initialize cursor
+j iterateCentrifuge
+
+iterateCentrifuge:
+bge Pointer CentrifugeNumber main #exit loop if iteration done (sp 0->nb-1, exit at nb)
+get CentriHash db Pointer
+add Pointer r1 1 #increment counter
+lbn CentriId HASH("StructureCentrifuge") CentriHash ReferenceId Maximum
+l InError CentriId Error
+beqz InError iterateCentrifuge  #skip if not in error
+
+l HatchOpen CentriId Open #read open
+l ReagentCount CentriId Reagents #read reagent Centri
+
+beqz HatchOpen openIfFull # closed: empty if full
+
+#hatch open
+ble ReagentCount 10 closeHatch #less than 10 -> close (some reagents can pass)
+j iterateCentrifuge
+
+openIfFull:
+bge ReagentCount 400 openHatch
+j iterateCentrifuge
+
+openHatch:
+s CentriId Open 1
+j iterateCentrifuge
+
+closeHatch:
+s CentriId Open 0
+j iterateCentrifuge
