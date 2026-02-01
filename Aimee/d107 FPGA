@@ -1,1 +1,72 @@
+#INPUTS
+#######
 
+#Inputs R/W
+#==========
+in00=WriteTetherX
+in01=WriteTetherY
+in02=WriteTetherZ
+in03=WriteTargetX
+in04=WriteTargetY
+in05=WriteTargetZ
+in06=WritePosX
+in07=WritePosY
+in08=WritePosZ
+in09=WriteMTMine
+in10=WriteRTChute
+in11=WriteWait
+in12=WriteMining
+in13=WriteAtChute
+
+#Inputs W only
+#=============
+in63=WriteBatteryRatio
+
+###################
+#GATES
+###################
+
+#GATES R/W
+#=========
+gate00=ReadTetherX max WriteTetherX WriteTetherX
+gate01=ReadTetherY max WriteTetherY WriteTetherY
+gate02=ReadTetherZ max WriteTetherZ WriteTetherZ
+gate03=ReadTargetX max WriteTargetX WriteTargetX
+gate04=ReadTargetY max WriteTargetY WriteTargetY
+gate05=ReadTargetZ max WriteTargetZ WriteTargetZ
+gate06=ReadPosX max WritePosX WritePosX
+gate07=ReadPosY max WritePosY WritePosY
+gate08=ReadPosZ max WritePosZ WritePosZ
+gate09=ReadMTMine max WriteMTMine WriteMTMine
+gate10=ReadRTChute max WriteRTChute WriteRTChute
+gate11=ReadWait max WriteWait WriteWait
+gate12=ReadMining max WriteMining WriteMining
+gate13=ReadAtChute max WriteAtChute WriteAtChute
+
+#GATES Calculated
+#================
+gate31=dPosX-TargetX - WritePosX WriteTargetX
+gate32=squaredPX-TX * dPosX-TargetX dPosX-TargetX
+gate33=dPosZ-TargetZ - WritePosZ WriteTargetZ
+gate34=squaredPZ-TZ * dPosZ-TargetZ dPosZ-TargetZ
+gate35=addsquaredP-T + squaredPX-TX squaredPZ-TZ
+gate36=DistPos-Target sqrt addsquaredP-T               ###### distance target / position
+
+gate60=MaxMTMRTC max WriteMTMine WriteRTChute
+gate61=Max59Wait max MaxMTMRTC WriteWait
+gate62=AnyOrder max Max59Wait WriteMining              ###### 1 if mining, waiting to complete action, moving to mine/chute
+gate63=BatterySufficient - WriteBatteryRatio ChargeMin ###### battery-chargeMin
+
+#Tables
+#######
+lut00=ChargeMin 0.1
+lut01=XChute 0
+lut02=YChute 0
+lut03=ZChute 0
+lut04=X0Spiral 192
+lut05=Y0Spiral 0
+lut06=Z0Spiral -489
+lut07=NoGoXMin -604
+lut08=NoGoXMax 251
+lut09=NogoZMin 239
+lut10=NoGoZMax 0.1
