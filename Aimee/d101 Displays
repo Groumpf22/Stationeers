@@ -1,0 +1,99 @@
+#Aimee d104 Display
+clr d101
+alias Robot d0
+
+##################################
+# define read/write addresses in d107 (input/gate)
+##################################
+define TetherX 0
+define TetherY 1
+define TetherZ 2
+define SavedTargetX 3
+define SavedTargetY 4
+define SavedTargetZ 5
+define PosX 6
+define PosY 7
+define PosZ 8
+define OrderRTChute 9
+define OrderMTMine 10
+define Waiting 11
+define Mining 12
+define AtChute 13
+##################################
+# define read only addresses in d107 (gate only)
+##################################
+define DistPosToTarget 36
+define AnyOrder 62
+define BatteryLeft 63
+##################################
+# define stack addresses in d107 (lup only)
+##################################
+define ChargeMin 64
+define XChute 64
+define YChute 66
+define ZChute 67
+define X0Spiral 68
+define Y0Spiral 69
+define Z0Spiral 70
+define NoGoXMin 71
+define NoGoXMax 72
+define NogoZMin 73
+define NoGoZMax 74
+##################################
+# define stack addresses in d100
+##################################
+define ShiftOrder 0
+define OverrideReturn 1
+define FinishedSpiral 2
+define StayAtChute 3
+
+loopReading:
+yield
+#Positions
+l r0 Robot PositionX 
+s 517083 Setting r0
+l r0 Robot PositionY
+s 517084 Setting r0
+l r0 Robot PositionZ
+s 517085 Setting r0
+get r0 d107 SavedTargetX
+s 517086 Setting r0
+get r0 d107 SavedTargetY
+s 517087 Setting r0
+get r0 d107 SavedTargetZ
+s 517088 Setting r0
+get r0 d107 TetherX
+s 517099 Setting r0
+get r0 d107 TetherZ
+s 517100 Setting r0
+
+#Status
+l r0 Robot MineablesInVicinity
+s 517158 Setting r0
+l r0 Robot MineablesInQueue
+s 517159 Setting r0
+l r0 Robot Mode
+s 517759 Setting r0
+l r0 Robot On
+s 517592 On r0
+
+#Slides and diode
+ls r0 Robot 0 ChargeRatio
+s 517318 Setting r0
+
+get r0 d100 ShiftOrder
+s 517402 On r0
+get r0 d100 FinishedSpiral
+s 517407 On r0
+get r0 d107 OrderRTChute
+s 585860 On r0
+get r0 d107 OrderMTMine
+s 585859 On r0
+get r0 d107 Waiting
+s 585861 On r0
+get r0 d107 Mining
+s 585862 On r0
+get r0 d107 AtChute
+s 585858 On r0
+
+j loopReading
