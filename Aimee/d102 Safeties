@@ -1,0 +1,18 @@
+define resetTetherSwitch 517732
+
+alias Robot d0
+alias PowerLever d1
+
+alias Var0 r15
+
+safetyLoop:
+yield 
+l Var0 PowerLever Setting
+s Robot On Var0
+l Var0 resetTetherSwitch Setting
+beq Var0 1 resetTether
+j safetyLoop
+
+resetTether:
+
+j safetyLoop
