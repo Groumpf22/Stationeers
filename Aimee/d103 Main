@@ -1,1 +1,77 @@
+alias Robot d0
+alias BotOrder r0
+alias BotMode r1
 
+define LeverReturn 517732
+#defines d107
+
+##################################
+# define read/write addresses in d107 (input/gate)
+##################################
+define TetherX 0
+define TetherY 1
+define TetherZ 2
+define SavedTargetX 3
+define SavedTargetY 4
+define SavedTargetZ 5
+define PosX 6
+define PosY 7
+define PosZ 8
+define OrderRTChute 9
+define OrderMTMine 10
+define Waiting 11
+define Mining 12
+define AtChute 13
+##################################
+# define read only addresses in d107 (gate only)
+##################################
+define DistPosToTarget 36
+define AnyOrder 62
+define BatteryLeft 63
+##################################
+# define stack addresses in d107 (lup only)
+##################################
+define ChargeMin 64
+define XChute 64
+define YChute 66
+define ZChute 67
+define X0Spiral 68
+define Y0Spiral 69
+define Z0Spiral 70
+define NoGoXMin 71
+define NoGoXMax 72
+define NogoZMin 73
+define NoGoZMax 74
+##################################
+# define stack addresses in d100
+##################################
+define ShiftOrder 0
+define OverrideReturn 1
+define FinishedSpiral 2
+define StayAtChute 3
+
+alias var1 r14
+alias var0 r15
+
+controlLoop:
+yield
+# return if lever return, charge low or full
+l r0 LeverReturn Setting
+beq r0 1 returnToChute
+get var0 d107 BatteryLeft
+blez var0 returnToChute
+l BotMode Robot Mode
+# set move to mine if bot mode 0, no stay at chute and no order
+get var0 d100 StayAtChute
+mul var0 var0 BotMode
+get var1 d107 AnyOrder 
+mul var0 var0 var1
+beqz var0 moveToMine 
+j controlLoop
+
+returnToChute:
+s d100 OrderRTChute 1
+j controlLoop
+moveToMine:
+s d100 OrderMTMine  1
+j controlLoop
