@@ -1,0 +1,124 @@
+#Aimee d104 Movement
+
+##################################
+# define read/write addresses in d107 (input/gate)
+##################################
+define TetherX 0
+define TetherY 1
+define TetherZ 2
+define SavedTargetX 3
+define SavedTargetY 4
+define SavedTargetZ 5
+define PosX 6
+define PosY 7
+define PosZ 8
+define OrderRTChute 9
+define OrderMTMine 10
+define Waiting 11
+define Mining 12
+define AtChute 13
+##################################
+# define read only addresses in d107 (gate only)
+##################################
+define DistPosToTarget 36
+define AnyOrder 62
+define BatteryLeft 63
+##################################
+# define stack addresses in d107 (lup only)
+##################################
+define ChargeMin 64
+define XChute 64
+define YChute 66
+define ZChute 67
+define X0Spiral 68
+define Y0Spiral 69
+define Z0Spiral 70
+define NoGoXMin 71
+define NoGoXMax 72
+define NogoZMin 73
+define NoGoZMax 74
+##################################
+# define stack addresses in d100
+##################################
+define ShiftOrder 0
+define OverrideReturn 1
+define FinishedSpiral 2
+define StayAtChute 3
+
+
+alias Robot d0
+
+alias BotOrder r0
+alias RTC r1
+alias BotMode r2
+alias var5 r10
+alias var4 r11
+alias var3 r12
+alias var2 r13
+alias var1 r14
+alias var0 r15
+
+controlLoop:
+yield
+get BotOrder d107 OrderRTChute
+beq BotOrder 1 returnToChute
+get BotOrder d107 OrderMTMine
+beq BotOrder 1 moveToMine
+j controlLoop 
+
+returnToChute:
+get Var0 d107 XChute
+get Var1 d107 YChute
+get Var2 d107 ZChute
+j setTarget
+
+moveToMine:
+get var0 d107 TetherX
+get var1 d107 TetherX
+get var2 d107 TetherX
+j setTarget
+
+setTarget:
+s Robot TargetX var0
+put d107 SavedTargetX var0
+s Robot TargetY var1
+put d107 SavedTargetX var1
+s Robot TargetZ var2
+put d107 SavedTargetX var2
+s Robot Mode RobotMode.MoveToTarget
+sleep 2
+get RTC d107 OrderRTChute
+put d107 Waiting 1
+put d107 OrderRTChute 0
+put d107 OrderMTMine 0
+
+waitForArrival:
+yield
+beqzal RTC checkReturn 
+s Robot Mode RobotMode.MoveToTarget
+sleep 2
+l var0 Robot PositionY
+s Robot TargetY var0
+l var0 Robot Mode
+bnez var0 waitForArrival  
+get var0 d107 DistPosToTarget
+bgt 2 waitForArrival  
+j waitForArrival 
+beqz RTC startMining
+j atChute 
+
+checkReturn:
+get var0 d107 OrderRTChute
+beqz var0 ra
+put d107 Waiting 0
+j controlLoop 
+
+startMining:
+put d107 Mining 1
+put d107 Waiting 0
+s Robot Mode RobotMode.Roam
+j controlLoop
+
+atChute:
+put d107 AtChute 1
+j controlLoop
