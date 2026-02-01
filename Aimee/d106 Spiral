@@ -1,1 +1,111 @@
+# d101 Shift tether
+clr d101
+# Stack d100
+define SavedTetherX 2
+define SavedTetherY 3
+define SavedTetherZ 4
+define ShiftOrder 5  ##
+define SavedNogoXMax 6
+define SavedNogoXMin 7
+define SavedNogoZMax 8
+define SavedNogoZMin 9
+define SavedX0 10
+define SavedZ0 12
+
+define Step 15
+
+alias Robot d0
+
+alias TetherX r1
+alias TetherZ r2
+alias Tether r3
+alias XMin r4
+alias XMax r5
+alias ZMin r6
+alias ZMax r7
+
+alias TgtX r8
+alias TgtZ r9
+alias Dir r10 # 0=L, 1=D, 2=R, 3=U
+alias LegSteps r11 # current leg length in steps
+alias RemSteps r12 # remaining steps in current leg
+alias LegNb r13 # 0 = first leg of this length, 1 = second leg
+
+alias Check r14
+alias var0 r15
+
+get XMin d100 SavedNogoXMin
+get XMax d100 SavedNogoXMax
+get ZMin d100 SavedNogoZMin
+get ZMax d100 SavedNogoZMax
+get TetherX d100 SavedX0 
+get TetherZ d100 SavedZ0
+move Dir 0
+move LegSteps 1
+move RemSteps 1
+move LegNb 0
+
+controlLoop: #loop until shift order
+sleep 2
+get var0 d100 ShiftOrder
+beqz var0 controlLoop
+
+# Square spiral X/Y (15m steps)
+# Leg lengths: 1,1,2,2,3,3,4,4... Dir: Left, Down, Right, Up (repeat)
+
+shiftLoop:
+#put d100 SavedX0 TetherX 
+#put d100 SavedZ0 TetherZ
+yield
+# ---- take one step in current direction ----
+beq Dir 0 go_left
+beq Dir 1 go_down
+beq Dir 2 go_right
+beq Dir 3 go_up
+
+go_left:
+  add TetherX TetherX Step
+j stepped
+go_down:
+  add TetherZ TetherZ Step
+j stepped
+go_right:
+  sub TetherX TetherX Step
+j stepped
+go_up:
+  sub TetherZ TetherZ Step
+
+stepped: # consume one step on this leg    
+  sub RemSteps RemSteps 1
+  bgt RemSteps 0 checkNogo
+  # Rem 0: end of the leg turn, increase leg if needed
+  add Dir Dir 1
+  and Dir Dir 3  # Dir = (Dir + 1) % 4 same as mod Dir Dir 4 but less expensive
+
+  beq LegNb 0 second_leg  # if first leg (0) , do second leg same length
+  # finished second leg -> increase length
+  move LegNb 0
+  add LegSteps LegSteps 1
+  move RemSteps LegSteps
+j checkNogo
+
+second_leg:
+  move LegNb 1
+  move RemSteps LegSteps
+j checkNogo
+
+checkNogo:
+yield
+sge var0 TetherX XMin #TX>XMin -> 1
+sle Check TetherX XMax #TX<XMax -> 1
+mul Check var0 Check
+sge var0 TetherZ ZMin #TZ>ZMin -> 1
+mul Check Check var0
+sle var0 TetherZ ZMax #TZ<ZMax -> 1
+mul Check Check var0 #one 0 (mul) -> ok, out of box, all 1 -> inbox, reshift
+beq Check 1 shiftLoop #reshift in nogo zone
+put d100 SavedTetherX TetherX
+put d100 SavedTetherZ TetherZ
+put d100 ShiftOrder 0
+j controlLoop
 
