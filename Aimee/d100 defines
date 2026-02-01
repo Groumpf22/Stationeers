@@ -1,0 +1,74 @@
+#d100 Aimee add lever (0=return to d1)
+
+define d100StackAmount 4 #adjust if add stack setting
+define d107RWAmount 14 #adjust if add d107 inputs (check in FGPA prog)
+clr d100
+
+##################################
+# define read/write addresses in d107 (input/gate)
+##################################
+define TetherX 0
+define TetherY 1
+define TetherZ 2
+define SavedTargetX 3
+define SavedTargetY 4
+define SavedTargetZ 5
+define PosX 6
+define PosY 7
+define PosZ 8
+define OrderRTChute 9
+define OrderMTMine 10
+define Waiting 11
+define Mining 12
+define AtChute 13
+##################################
+# define read only addresses in d107 (gate only)
+##################################
+define DistPosToTarget 36
+define AnyOrder 62
+define BatteryLeft 63
+##################################
+# define stack addresses in d107 (lup only)
+##################################
+define ChargeMin 64
+define XChute 64
+define YChute 66
+define ZChute 67
+define X0Spiral 68
+define Y0Spiral 69
+define Z0Spiral 70
+define NoGoXMin 71
+define NoGoXMax 72
+define NogoZMin 73
+define NoGoZMax 74
+##################################
+# define stack addresses in d100
+##################################
+define ShiftOrder 0
+define OverrideReturn 1
+define FinishedSpiral 2
+define StayAtChute 3
+
+alias var1 r14
+alias var0 r15
+
+loopCleard100:
+bge var0 d100StackAmount cleard107 #d100 clear, clear d107
+put d100 var0 0
+add var0 var0 1
+j loopCleard100
+
+cleard107:
+move var0 0
+loopCleard107:
+bge var0 d107RWAmount protectStack #d107 clear, fill values
+put d107 var0 0
+add var0 var0 1
+j loopCleard107
+
+protectStack:
+move var0 d100StackAmount
+add var0 var0 1
+move sp var0 #move sp to stack amount +1 for protection
+
+
