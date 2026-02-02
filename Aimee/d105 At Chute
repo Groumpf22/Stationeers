@@ -1,1 +1,80 @@
+#Aimee d105 At Chute
+
+##################################
+# define read/write addresses in d107 (input/gate)
+##################################
+define TetherX 0
+define TetherY 1
+define TetherZ 2
+define SavedTargetX 3
+define SavedTargetY 4
+define SavedTargetZ 5
+define PosX 6
+define PosY 7
+define PosZ 8
+define OrderRTChute 9
+define OrderMTMine 10
+define Waiting 11
+define Mining 12
+define AtChute 13
+define ShiftOrder 14
+define OverrideReturn 15
+define FinishedSpiral 16
+define StayAtChute 17
+##################################
+# define read only addresses in d107 (gate only)
+##################################
+define DistPosToTarget 36
+define AnyOrder 62
+define BatteryLeft 63
+##################################
+# define stack addresses in d107 (lup only)
+##################################
+define ChargeMin 128
+define XChute 129
+define YChute 130
+define ZChute 131
+define X0Spiral 132
+define Y0Spiral 133
+define Z0Spiral 134
+define NoGoXMin 135
+define NoGoXMax 136
+define NogoZMin 137
+define NoGoZMax 138
+
+alias Robot d0
+
+alias var0 r15
+
+controlLoop:
+yield
+get var0 d100 AtChute
+bnez var0 controlLoop 
+get var0 d100 Waiting
+beqal var0 1 emptyBot
+get var0 d100 StayAtChute
+bnez var0 controlLoop #Stay at chute-> loop
+get var0 d107 BatteryLeft  #battery low, stay
+sltz var0 setStay
+sgez var0 letGo
+j controlLoop
+
+emptyBot:
+  s Robot Mode RobotMode.Unload 
+  sleep 2
+waitLoop:
+  yield
+  l var0 Robot Mode
+  bnez var0 waitLoop
+put d100 StayAtChute 1
+put d100 Waiting 0
+j ra
+
+setStay:
+put d100 StayAtChute 1
+j controlLoop 
+
+letGo:
+put d100 StayAtChute 0
+j controlLoop
 
