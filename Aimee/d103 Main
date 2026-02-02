@@ -80,7 +80,7 @@ blez var0 returnToChute
 l BotMode Robot Mode
 beq BotMode 6 returnToChute
 # set move to mine if bot mode 0, no stay at chute and no order (mining/Waiting/RTC/RTM)
-get var0 d100 StayAtChute
+get var0 d107 StayAtChute
 add var0 var0 BotMode
 get var1 d107 AnyOrder 
 add var0 var0 var1
