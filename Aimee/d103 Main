@@ -1,11 +1,9 @@
 #d103 Main
 
 alias Robot d0
+alias LeverReturn d2
 alias BotOrder r0
 alias BotMode r1
-
-define LeverReturn 517732
-#defines d107
 
 ##################################
 # define read/write addresses in d107 (input/gate)
@@ -24,6 +22,10 @@ define OrderMTMine 10
 define Waiting 11
 define Mining 12
 define AtChute 13
+define ShiftOrder 14
+define OverrideReturn 15
+define FinishedSpiral 16
+define StayAtChute 17
 ##################################
 # define read only addresses in d107 (gate only)
 ##################################
@@ -33,47 +35,62 @@ define BatteryLeft 63
 ##################################
 # define stack addresses in d107 (lup only)
 ##################################
-define ChargeMin 64
-define XChute 64
-define YChute 66
-define ZChute 67
-define X0Spiral 68
-define Y0Spiral 69
-define Z0Spiral 70
-define NoGoXMin 71
-define NoGoXMax 72
-define NogoZMin 73
-define NoGoZMax 74
-##################################
-# define stack addresses in d100
-##################################
-define ShiftOrder 0
-define OverrideReturn 1
-define FinishedSpiral 2
-define StayAtChute 3
+define ChargeMin 128
+define XChute 129
+define YChute 130
+define ZChute 131
+define X0Spiral 132
+define Y0Spiral 133
+define Z0Spiral 134
+define NoGoXMin 135
+define NoGoXMax 136
+define NogoZMin 137
+define NoGoZMax 138
 
+alias var2 r13
 alias var1 r14
 alias var0 r15
 
+get var0 d107 TetherX
+get var1 d107 TetherY
+get var2 d107 TetherZ
+mul var0 var0 var1
+mul var0 var0 var2
+bnez var0 controlLoop
+get var0 d107 X0Spiral
+put d107 TetherX var0
+get var0 d107 Y0Spiral
+put d107 TetherY var0
+get var0 d107 Z0Spiral
+put d107 TetherZ var0
+
 controlLoop:
 yield
+ls var0 Robot 0 ChargeRatio
+put d107 BatteryLeft var0
+l var0 Robot PositionX
+put d107 PosX var0
+l var0 Robot PositionZ
+put d107 PosZ var0
 # return if lever return, charge low or full
-l r0 LeverReturn Setting
-beq r0 1 returnToChute
+l var0 LeverReturn Setting
+beq var0 1 returnToChute
 get var0 d107 BatteryLeft
 blez var0 returnToChute
 l BotMode Robot Mode
-# set move to mine if bot mode 0, no stay at chute and no order
+beq BotMode 6 returnToChute
+# set move to mine if bot mode 0, no stay at chute and no order (mining/Waiting/RTC/RTM)
 get var0 d100 StayAtChute
-mul var0 var0 BotMode
+add var0 var0 BotMode
 get var1 d107 AnyOrder 
-mul var0 var0 var1
+add var0 var0 var1
 beqz var0 moveToMine 
 j controlLoop
 
 returnToChute:
-s d100 OrderRTChute 1
+put d107 OrderRTChute 1
+put d107 OrderMTMine 0
 j controlLoop
 moveToMine:
-s d100 OrderMTMine  1
+put d107 OrderMTMine  1
 j controlLoop
