@@ -66,12 +66,6 @@ put d107 TetherZ var0
 
 controlLoop:
 yield
-ls var0 Robot 0 ChargeRatio
-put d107 BatteryLeft var0
-l var0 Robot PositionX
-put d107 PosX var0
-l var0 Robot PositionZ
-put d107 PosZ var0
 # return if lever return, charge low or full
 l var0 LeverReturn Setting
 beq var0 1 returnToChute
