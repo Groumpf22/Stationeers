@@ -46,6 +46,7 @@ define NoGoXMax 136
 define NogoZMin 137
 define NoGoZMax 138
 
+alias Robot d0
 alias var1 r14
 alias var0 r15
 
