@@ -17,6 +17,10 @@ define OrderMTMine 10
 define Waiting 11
 define Mining 12
 define AtChute 13
+define ShiftOrder 14
+define OverrideReturn 15
+define FinishedSpiral 16
+define StayAtChute 17
 ##################################
 # define read only addresses in d107 (gate only)
 ##################################
@@ -26,24 +30,17 @@ define BatteryLeft 63
 ##################################
 # define stack addresses in d107 (lup only)
 ##################################
-define ChargeMin 64
-define XChute 64
-define YChute 66
-define ZChute 67
-define X0Spiral 68
-define Y0Spiral 69
-define Z0Spiral 70
-define NoGoXMin 71
-define NoGoXMax 72
-define NogoZMin 73
-define NoGoZMax 74
-##################################
-# define stack addresses in d100
-##################################
-define ShiftOrder 0
-define OverrideReturn 1
-define FinishedSpiral 2
-define StayAtChute 3
+define ChargeMin 128
+define XChute 129
+define YChute 130
+define ZChute 131
+define X0Spiral 132
+define Y0Spiral 133
+define Z0Spiral 134
+define NoGoXMin 135
+define NoGoXMax 136
+define NogoZMin 137
+define NoGoZMax 138
 
 
 alias Robot d0
@@ -67,24 +64,25 @@ beq BotOrder 1 moveToMine
 j controlLoop 
 
 returnToChute:
-get Var0 d107 XChute
-get Var1 d107 YChute
-get Var2 d107 ZChute
+put d107 OrderMTMine 0
+get var0 d107 XChute
+get var1 d107 YChute
+get var2 d107 ZChute
 j setTarget
 
 moveToMine:
 get var0 d107 TetherX
-get var1 d107 TetherX
-get var2 d107 TetherX
+get var1 d107 TetherY
+get var2 d107 TetherZ
 j setTarget
 
 setTarget:
 s Robot TargetX var0
 put d107 SavedTargetX var0
 s Robot TargetY var1
-put d107 SavedTargetX var1
+put d107 SavedTargetY var1
 s Robot TargetZ var2
-put d107 SavedTargetX var2
+put d107 SavedTargetZ var2
 s Robot Mode RobotMode.MoveToTarget
 sleep 2
 get RTC d107 OrderRTChute
@@ -99,10 +97,11 @@ s Robot Mode RobotMode.MoveToTarget
 sleep 2
 l var0 Robot PositionY
 s Robot TargetY var0
+put d107 SavedTargetY var0
 l var0 Robot Mode
 bnez var0 waitForArrival  
 get var0 d107 DistPosToTarget
-bgt 2 waitForArrival  
+bgt var0 2 waitForArrival  
 j waitForArrival 
 beqz RTC startMining
 j atChute 
