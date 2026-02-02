@@ -19,6 +19,10 @@ define OrderMTMine 10
 define Waiting 11
 define Mining 12
 define AtChute 13
+define ShiftOrder 14
+define OverrideReturn 15
+define FinishedSpiral 16
+define StayAtChute 17
 ##################################
 # define read only addresses in d107 (gate only)
 ##################################
@@ -28,24 +32,17 @@ define BatteryLeft 63
 ##################################
 # define stack addresses in d107 (lup only)
 ##################################
-define ChargeMin 64
-define XChute 64
-define YChute 66
-define ZChute 67
-define X0Spiral 68
-define Y0Spiral 69
-define Z0Spiral 70
-define NoGoXMin 71
-define NoGoXMax 72
-define NogoZMin 73
-define NoGoZMax 74
-##################################
-# define stack addresses in d100
-##################################
-define ShiftOrder 0
-define OverrideReturn 1
-define FinishedSpiral 2
-define StayAtChute 3
+define ChargeMin 128
+define XChute 129
+define YChute 130
+define ZChute 131
+define X0Spiral 132
+define Y0Spiral 133
+define Z0Spiral 134
+define NoGoXMin 135
+define NoGoXMax 136
+define NogoZMin 137
+define NoGoZMax 138
 
 loopReading:
 yield
@@ -66,6 +63,8 @@ get r0 d107 TetherX
 s 517099 Setting r0
 get r0 d107 TetherZ
 s 517100 Setting r0
+get r0 d107 DistPosToTarget 
+s 587879 Setting r0
 
 #Status
 l r0 Robot MineablesInVicinity
@@ -81,9 +80,9 @@ s 517592 On r0
 ls r0 Robot 0 ChargeRatio
 s 517318 Setting r0
 
-get r0 d100 ShiftOrder
+get r0 d107 ShiftOrder
 s 517402 On r0
-get r0 d100 FinishedSpiral
+get r0 d107 FinishedSpiral
 s 517407 On r0
 get r0 d107 OrderRTChute
 s 585860 On r0
@@ -95,5 +94,6 @@ get r0 d107 Mining
 s 585862 On r0
 get r0 d107 AtChute
 s 585858 On r0
-
+get r0 d107 StayAtChute 
+s 587604 On r0
 j loopReading
