@@ -17,6 +17,10 @@ in10=WriteRTChute
 in11=WriteWait
 in12=WriteMining
 in13=WriteAtChute
+in14=WriteShiftOrder
+in15=WriteOverrideReturn
+in16=WriteFinishedSpiral
+in17=WriteStayAtChute
 
 #Inputs W only
 #=============
@@ -42,6 +46,10 @@ gate10=ReadRTChute max WriteRTChute WriteRTChute
 gate11=ReadWait max WriteWait WriteWait
 gate12=ReadMining max WriteMining WriteMining
 gate13=ReadAtChute max WriteAtChute WriteAtChute
+gate14=ReadShiftOrder max WriteShiftOrder WriteShiftOrder
+gate15=ReadOverrideReturn max WriteOverrideReturn WriteOverrideReturn
+gate16=ReadFinishedSpiral max WriteFinishedSpiral WriteFinishedSpiral
+gate17=ReadStayAtChute max WriteStayAtChute WriteStayAtChute
 
 #GATES Calculated
 #================
@@ -60,12 +68,12 @@ gate63=BatterySufficient - WriteBatteryRatio ChargeMin ###### battery-chargeMin
 #Tables
 #######
 lut00=ChargeMin 0.1
-lut01=XChute 0
-lut02=YChute 0
-lut03=ZChute 0
-lut04=X0Spiral 192
-lut05=Y0Spiral 0
-lut06=Z0Spiral -489
+lut01=XChute -607
+lut02=YChute 263
+lut03=ZChute 231
+lut04=X0Spiral -607
+lut05=Y0Spiral 263
+lut06=Z0Spiral 231
 lut07=NoGoXMin -604
 lut08=NoGoXMax 251
 lut09=NogoZMin 239
