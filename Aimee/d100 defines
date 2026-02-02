@@ -21,6 +21,10 @@ define OrderMTMine 10
 define Waiting 11
 define Mining 12
 define AtChute 13
+define ShiftOrder 14
+define OverrideReturn 15
+define FinishedSpiral 16
+define StayAtChute 17
 ##################################
 # define read only addresses in d107 (gate only)
 ##################################
@@ -30,24 +34,17 @@ define BatteryLeft 63
 ##################################
 # define stack addresses in d107 (lup only)
 ##################################
-define ChargeMin 64
-define XChute 64
-define YChute 66
-define ZChute 67
-define X0Spiral 68
-define Y0Spiral 69
-define Z0Spiral 70
-define NoGoXMin 71
-define NoGoXMax 72
-define NogoZMin 73
-define NoGoZMax 74
-##################################
-# define stack addresses in d100
-##################################
-define ShiftOrder 0
-define OverrideReturn 1
-define FinishedSpiral 2
-define StayAtChute 3
+define ChargeMin 128
+define XChute 129
+define YChute 130
+define ZChute 131
+define X0Spiral 132
+define Y0Spiral 133
+define Z0Spiral 134
+define NoGoXMin 135
+define NoGoXMax 136
+define NogoZMin 137
+define NoGoZMax 138
 
 alias var1 r14
 alias var0 r15
@@ -70,5 +67,3 @@ protectStack:
 move var0 d100StackAmount
 add var0 var0 1
 move sp var0 #move sp to stack amount +1 for protection
-
-
