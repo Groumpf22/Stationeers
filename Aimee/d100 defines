@@ -49,12 +49,6 @@ define NoGoZMax 138
 alias var1 r14
 alias var0 r15
 
-loopCleard100:
-bge var0 d100StackAmount cleard107 #d100 clear, clear d107
-put d100 var0 0
-add var0 var0 1
-j loopCleard100
-
 cleard107:
 move var0 0
 loopCleard107:
@@ -67,3 +61,15 @@ protectStack:
 move var0 d100StackAmount
 add var0 var0 1
 move sp var0 #move sp to stack amount +1 for protection
+
+readLoop:
+yield
+ls var0 Robot 0 ChargeRatio
+put d107 BatteryLeft var0
+l var0 Robot PositionX
+put d107 PosX var0
+l var0 Robot PositionY
+put d107 PosY var0
+l var0 Robot PositionZ
+put d107 PosZ var0
+j readLoop
