@@ -1,7 +1,7 @@
 #d100 Aimee add lever (0=return to d1)
 
 define d100StackAmount 4 #adjust if add stack setting
-define d107RWAmount 14 #adjust if add d107 inputs (check in FGPA prog)
+define d107RWAmount 18 #adjust if add d107 inputs (check in FGPA prog)
 clr d100
 
 ##################################
@@ -29,6 +29,8 @@ define StayAtChute 17
 # define read only addresses in d107 (gate only)
 ##################################
 define DistPosToTarget 36
+define dPos-chute 58
+define AtPosChute 59 
 define AnyOrder 62
 define BatteryLeft 63
 ##################################
