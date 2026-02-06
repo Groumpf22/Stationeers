@@ -32,7 +32,7 @@ define DistPosToTarget 36
 define dPos-chute 58
 define AtPosChute 59 
 define AnyOrder 62
-define BatteryLeft 63
+define BatteryLow 63
 ##################################
 # define stack addresses in d107 (lup only)
 ##################################
